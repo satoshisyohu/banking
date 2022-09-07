@@ -1,0 +1,33 @@
+version: '3'
+services:  #サービスをコンテナの単位と捉えてok
+   mysql:
+     image: mysql:latest #dockerリポジトリからpullするDockerイメージ
+     restart: always #alwaysにすることでホストosやdockerデーモン起動時にコンテナが自動起動する（pc起動時等）
+     container_name: mysql03
+     environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_DATABASE: banking_db
+       MYSQL_USER: scott
+       MYSQL_PASSWORD: tiger
+       TZ: 'Asia/Tokyo'
+     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+     volumes:
+      - ./mysql/initdb.d:/docker-entrypoint-initdb.d #初期処理のフォルダ。初回起動のみでおｋ /ホストOSのディレクトリ/dockerネットワーク内のディレクトリ/
+      - ./mysql/db:/var/lib/mysql #ここにデータ永続化するためのファイルが入る。 /var/lib/mysql(dockerネットワーク)を/var/lib/mysql(ホストosのディレクトリ)にマウントする
+     ports:
+       - 3333:3306 #localhost80番への通信をコンテナの80番ポートへ転送する
+
+
+#①dodkerを立ち上げる
+#docker-compose up -d 
+#②立ち上げたコンテナ名でbashに入る
+#docker exec -it mysql02 bash
+#③mysqlにログインする
+#mysql -u root -p
+#④bashを抜ける
+#exit 
+
+
+
+#curl -XPOST -H "Content-Type: application/json" -d '{"customerId":"Uv38ByGCZU8WP18","transactionCredit":"100000"}' http://localhost:3000/deposit
+#curl -XPOST -H "Content-Type: application/json" -d '{"customerId":"Uv38ByGCZU8WP18"}' http://localhost:3000/inquiry
