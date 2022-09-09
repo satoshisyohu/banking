@@ -12,17 +12,11 @@ import (
 // 	RegisterTransacationHistory(credit_history_form *entity.Credit_history)
 // }
 
-type TestC entity.Customer
-
-func (c *testC) Test() bool {
-	return c.Account_number == "aa"
-}
-
 func IsCustomerAndCredit(creditHistoryForm *entity.Credit_history) *entity.Customer {
 	db, err := ConnectToDb()
 	customer := entity.Customer{}
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	} else {
 		db.Get(&customer, `SELECT * from customer where customer_id =?`, creditHistoryForm.Customer_id)
 	}
