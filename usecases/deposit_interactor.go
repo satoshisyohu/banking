@@ -11,8 +11,6 @@ type CreditHistory entity.Credit_history
 
 // 預金から残高を引き落とす
 func Deposit(creditHistoryForm *entity.Credit_history) *entity.ResultMessage {
-	var err error
-
 	//container/listっていうライブラリを使うこともできるよ
 	l := list.New()
 	l.PushBack("z")
@@ -31,7 +29,7 @@ func Deposit(creditHistoryForm *entity.Credit_history) *entity.ResultMessage {
 		} else {
 			var updateCreditBalance = strconv.Itoa(caliculateDepositCredit(selectCustomer.Credit_balance, creditHistoryForm.Transaction_credit))
 
-			err = CustomerUpdate(selectCustomer.Customer_id, updateCreditBalance)
+			err := CustomerUpdate(selectCustomer.Customer_id, updateCreditBalance)
 			if err != nil {
 				return &entity.ResultMessage{Result: false, MessageType: entity.UPDATE_FAIL}
 			}

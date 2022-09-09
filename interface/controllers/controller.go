@@ -16,6 +16,10 @@ type RegisterCustomer struct {
 	Name        string `json:"name" validate:"required"`
 }
 
+type InquieryCustomer struct {
+	CustomerId string `json:"customerId" validate:"required"`
+}
+
 //顧客の取引を行う際に受け取るための構造体
 type TransactionCustomer struct {
 	CustomerId         string `json:"customerId" validate:"required"`
@@ -54,11 +58,10 @@ func Register(c *gin.Context) {
 		if err := validate.Struct(formRegisterCustomer); err != nil {
 			log.Fatal(err)
 		} else {
-			log.Println(&formRegisterCustomer)
 			validation = formRegisterCustomer
 			usecases.Register(validation.Customer_validation())
 			c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "Success"})
-			log.Println(err)
+			log.Fatal(err)
 		}
 
 	}
@@ -66,7 +69,6 @@ func Register(c *gin.Context) {
 }
 
 func (t RegisterCustomer) Customer_validation() *entity.Customer {
-
 	return &entity.Customer{
 		Name:          t.Name,
 		Branch_number: t.BranchNumer,
@@ -105,15 +107,18 @@ func (t TransactionCustomer) TransactionValidation() *entity.Credit_history {
 }
 
 func Inquiry(c *gin.Context) {
-	var formTransactionCustomer TransactionCustomer
+	var formCustomer InquieryCustomer
 
-	err := c.ShouldBindJSON(&formTransactionCustomer)
-
-	c.JSON(http.StatusOK, entity.ReturnCredit{ResultCrecit: usecases.Inquiry(formTransactionCustomer.CustomerId)})
-
-	if err != nil {
-		println(err)
+	if err := c.ShouldBindJSON(&formCustomer); err != nil {
+		log.Fatal(err)
 	}
+	validate := validator.New()
+	if err := validate.Struct(formCustomer); err != nil {
+		log.Fatal(err)
+	} else {
+		c.JSON(http.StatusOK, entity.ReturnCredit{ResultCrecit: usecases.Inquiry(formCustomer.CustomerId)})
+	}
+
 }
 
 func Deposit(c *gin.Context) {
@@ -141,6 +146,7 @@ func Deposit(c *gin.Context) {
 
 }
 
+//これはどっか外に出した方が良い気がする
 func IndicateErrorMessage(res *entity.ResultMessage) string {
 	switch res.MessageType {
 	case entity.NO_CUSTOMER_ID:
