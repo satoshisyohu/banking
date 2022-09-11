@@ -3,6 +3,7 @@ package controllers
 import (
 	"go_bank/entity"
 	"go_bank/usecases"
+
 	"log"
 	"net/http"
 
@@ -11,72 +12,61 @@ import (
 )
 
 //顧客を作成する際に値を受け取るための構造体
-type RegisterCustomer struct {
-	BranchNumer string `json:"branchNumber" validate:"required"`
-	Name        string `json:"name" validate:"required"`
-}
 
-//顧客の取引を行う際に受け取るための構造体
-type TransactionCustomer struct {
-	CustomerId         string `json:"customerId" validate:"required"`
-	TrainsactionCredit string `json:"transactionCredit" validate:"required"`
-}
-
-type FormTransactionCustomer struct {
-	*TransactionCustomer
-}
-
-type FormRegisterCustomer struct {
-	*RegisterCustomer
-}
-
-type ValidationTransactionInterface interface {
-	TransactionValidation() *entity.Credit_history
-}
-
-type ValidationCustomerInterface interface {
-	Customer_validation() *entity.Customer
-}
-
-// func ValidateAll(e ValidationInterface) *entity.Credit_history {
-// 	return e.WithDrawValidation() // インターフェースから呼び出す
-
+// type FormTransactionCustomer struct {
+// 	*entity.FormTransactionCustomer
 // }
 
-func Register(c *gin.Context) {
-	var formRegisterCustomer RegisterCustomer
-	var validation ValidationCustomerInterface
+// type FormCustomer struct {
+// 	*entity.FormCustomer
+// }
 
-	if err := c.ShouldBindJSON(&formRegisterCustomer); err != nil {
+// type ValidationTransactionInterface interface {
+// 	TransactionValidation() *entity.Credit_history
+// }
+
+// type ValidationCustomerInterface interface {
+// 	Customer_validation() *entity.Customer
+// }
+
+type result entity.Result
+
+func Register(c *gin.Context) {
+
+	var formCustomer entity.FormCustomer
+	// var validation ValidationCustomerInterface
+
+	if err := c.ShouldBindJSON(&formCustomer); err != nil {
 		log.Fatal(err)
 	} else {
 		validate := validator.New()
-		if err := validate.Struct(formRegisterCustomer); err != nil {
+		if err := validate.Struct(formCustomer); err != nil {
 			log.Fatal(err)
 		} else {
-			log.Println(&formRegisterCustomer)
-			validation = formRegisterCustomer
-			usecases.Register(validation.Customer_validation())
-			c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "Success"})
-			log.Println(err)
+			// validation = formFormCustomer
+			// err := usecases.Register(validation.Customer_validation())
+			err := usecases.Register(&formCustomer)
+
+			if err != nil {
+				log.Fatal(err)
+			} else {
+				c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "Success"})
+			}
 		}
 
 	}
 
 }
 
-func (t RegisterCustomer) Customer_validation() *entity.Customer {
-
-	return &entity.Customer{
-		Name:          t.Name,
-		Branch_number: t.BranchNumer,
-	}
-
-}
+// func (t FormCustomer) Customer_validation() *entity.Customer {
+// 	return &entity.Customer{
+// 		Name:          t.Name,
+// 		Branch_number: t.BranchNumer,
+// 	}
 
 func Withdraw(c *gin.Context) {
-	var formTransactionCustomer TransactionCustomer
-	var validation ValidationTransactionInterface
+	var formTransactionCustomer entity.FormTransactionCustomer
+	// var validation ValidationTransactionInterface
 	// var sub = c.Request.Header.Get("sub")
 	// log.Println(sub)
 	if err := c.ShouldBindJSON(&formTransactionCustomer); err != nil {
@@ -87,38 +77,48 @@ func Withdraw(c *gin.Context) {
 		log.Fatal(err)
 	}
 
-	validation = formTransactionCustomer
-	var res = usecases.Withdraw(validation.TransactionValidation())
+	// validation = formTransactionCustomer
+	// var res = usecases.Withdraw(validation.TransactionValidation())
+	log.Println(&formTransactionCustomer)
+	res := usecases.Withdraw(&formTransactionCustomer)
 	if res.Result == true {
 		c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "出金が完了しました。"})
 	} else {
-		c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(res)})
+		// c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(res)})
 	}
 
 }
 
-func (t TransactionCustomer) TransactionValidation() *entity.Credit_history {
-	return &entity.Credit_history{
-		Customer_id:        t.CustomerId,
-		Transaction_credit: t.TrainsactionCredit,
-	}
-}
+// func (t FormTransactionCustomer) TransactionValidation() *entity.Credit_history {
+// 	return &entity.Credit_history{
+// 		Customer_id:        t.CustomerId,
+// 		Transaction_credit: t.TransactionCredit,
+// 	}
+// }
 
 func Inquiry(c *gin.Context) {
-	var formTransactionCustomer TransactionCustomer
+	var formCustomer entity.FormInquieryCustomer
 
-	err := c.ShouldBindJSON(&formTransactionCustomer)
-
-	c.JSON(http.StatusOK, entity.ReturnCredit{ResultCrecit: usecases.Inquiry(formTransactionCustomer.CustomerId)})
-
-	if err != nil {
-		println(err)
+	if err := c.ShouldBindJSON(&formCustomer); err != nil {
+		log.Fatal(err)
 	}
+	validate := validator.New()
+	if err := validate.Struct(formCustomer); err != nil {
+		log.Fatal(err)
+	} else {
+		creditBalance, err := usecases.Inquiry(formCustomer.CustomerId)
+		if *err != nil {
+			log.Println(*err)
+		} else {
+			c.JSON(http.StatusOK, entity.ReturnCredit{ResultCrecit: creditBalance})
+		}
+	}
+
 }
 
 func Deposit(c *gin.Context) {
-	var formTransactionCustomer TransactionCustomer
-	var validation ValidationTransactionInterface
+	var formTransactionCustomer entity.FormTransactionCustomer
+	// var validation ValidationTransactionInterface
 	// var sub = c.Request.Header.Get("sub")
 	// log.Println(sub)
 	if err := c.ShouldBindJSON(&formTransactionCustomer); err != nil {
@@ -130,26 +130,30 @@ func Deposit(c *gin.Context) {
 		log.Fatal(err)
 	}
 
-	validation = formTransactionCustomer
-	var res = usecases.Deposit(validation.TransactionValidation())
-	if res.Result == true {
-		c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "入金が完了しました。"})
-	} else {
-		c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(res)})
+	// validation = formTransactionCustomer
+	// err := usecases.Deposit(validation.TransactionValidation())
+	err := usecases.Deposit(&formTransactionCustomer)
 
+	log.Println(err)
+	if err != nil {
+		c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(err)})
+	} else {
+		c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "入金が完了しました。"})
 	}
 
 }
 
-func IndicateErrorMessage(res *entity.ResultMessage) string {
-	switch res.MessageType {
-	case entity.NO_CUSTOMER_ID:
+//これはどっか外に出した方が良い気がする
+func IndicateErrorMessage(res error) string {
+	print(res)
+	switch res.Error() {
+	case "NO_CUSTOMER_ID":
 		return "該当の顧客IDが見つかりませんでした。"
-	case entity.INVALID_VALUE:
+	case "INVALID_VALUE":
 		return "入力した値が不正です。"
-	case entity.UPDATE_FAIL:
+	case "UPDATE_FAIL":
 		return "再度時間を置いて実施してください。"
-	case entity.NO_CASH:
+	case "NO_CASH":
 		return "口座残高が不足しています。"
 	}
 	return "不正な処理が行われました。"

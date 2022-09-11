@@ -1,26 +1,24 @@
 package usecases
 
 import (
-	"go_bank/entity"
 	"log"
-
-	"github.com/jmoiron/sqlx"
 )
 
-var db *sqlx.DB
+func (c Customer) RegisterCustomer() error {
+	var err error
 
-func RegisterCustomer(customer *entity.Customer) {
-	db, err := sqlx.Connect("mysql", "root:root@tcp(0.0.0.0:3333)/banking_db")
+	tx := DB.MustBegin()
+	//MustExecは戻り値にerrを指定すると必ずerrに値がなにか入るので、うまく処理できない
+	//errorが起こった際はpanicになるから問題なし
+	//でも本番でpanicが起こったらサーバ止まるよな
+	tx.MustExec(`INSERT INTO customer(customer_id,account_number,branch_number,name,credit_balance) VALUES(?,?,?,?,?)`, c.Customer_id, c.Account_number, c.Branch_number, c.Name, c.Credit_balance)
+	err = tx.Commit()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	} else {
-		tx := db.MustBegin()
-		//MustExecは戻り値にerrを指定すると必ずerrに値がなにか入るので、うまく処理できない
-		//errorが起こった際はpanicになるから問題なし
-		//でも本番でpanicが起こったらサーバ止まるよな
-		tx.MustExec(`INSERT INTO customer(customer_id,account_number,branch_number,name,credit_balance) VALUES(?,?,?,?,?)`, customer.Customer_id, customer.Account_number, customer.Branch_number, customer.Name, customer.Credit_balance)
-		tx.Commit()
-		log.Print("succed register customer")
-
+		log.Print("succeed register customer")
 	}
+	defer tx.Rollback()
+
+	return err
 }

@@ -22,7 +22,7 @@ services:  #サービスをコンテナの単位と捉えてok
 #docker-compose up -d 
 #②立ち上げたコンテナ名でbashに入る
 #docker exec -it mysql02 bash
-#③mysqlにログインする
+#③mysqlにログインshoする
 #mysql -u root -p
 #④bashを抜ける
 #exit 

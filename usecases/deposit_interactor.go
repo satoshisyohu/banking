@@ -1,56 +1,55 @@
 package usecases
 
 import (
-	"container/list"
+	"errors"
 	"go_bank/entity"
-	"log"
+
 	"strconv"
 )
 
-type CreditHistory entity.Credit_history
-
 // 預金から残高を引き落とす
-func Deposit(creditHistoryForm *entity.Credit_history) *entity.ResultMessage {
+func Deposit(formTransactionCustomer *entity.FormTransactionCustomer) error {
 	var err error
 
 	//container/listっていうライブラリを使うこともできるよ
-	l := list.New()
-	l.PushBack("z")
-	log.Println(l.Front().Value)
+	// l := list.New()
+	// l.PushBack("z")
+	// log.Println(l.Front().Value)
 
-	var selectCustomer = IsCustomerAndCredit(creditHistoryForm)
-
-	if selectCustomer.Customer_id == "" {
-		return &entity.ResultMessage{Result: false, MessageType: entity.NO_CUSTOMER_ID}
+	selectCustomer, err := IsCustomerAndCredit(formTransactionCustomer)
+	if &selectCustomer.Customer_id == nil {
+		return errors.New("NO_CUSTOMER_ID")
 	} else {
-		var creditHistory CreditHistory
-		creditHistory = CreditHistory(*creditHistoryForm)
-		var res = creditHistory.isValidDepositCredit(selectCustomer.Credit_balance)
-		if res.Result == false {
-			return res
+		err = selectCustomer.isValidDepositCredit(formTransactionCustomer)
+		if err != nil {
+			return err
 		} else {
-			var updateCreditBalance = strconv.Itoa(caliculateDepositCredit(selectCustomer.Credit_balance, creditHistoryForm.Transaction_credit))
+			var updateCreditBalance = strconv.Itoa(caliculateDepositCredit(selectCustomer.Credit_balance, formTransactionCustomer.TransactionCredit))
 
-			err = CustomerUpdate(selectCustomer.Customer_id, updateCreditBalance)
+			err = selectCustomer.CustomerUpdate(updateCreditBalance)
 			if err != nil {
-				return &entity.ResultMessage{Result: false, MessageType: entity.UPDATE_FAIL}
+				return errors.New("UPDATE_FAIL")
 			}
-
-			(RegisterTransacationHistory(setcreditHistory(creditHistoryForm.Customer_id, creditHistoryForm.Transaction_credit)))
+			creditHistoryInterface := setcreditHistory(formTransactionCustomer.CustomerId, formTransactionCustomer.TransactionCredit)
+			err := creditHistoryInterface.RegisterTransacationHistory()
+			if err != nil {
+				return *err
+			}
 		}
-		return &entity.ResultMessage{Result: true, MessageType: entity.DEPOSIT_OK}
+		return err
 	}
 }
-func (c *CreditHistory) isValidDepositCredit(selectCustomerCreditBalance string) *entity.ResultMessage {
-	_, err := strconv.Atoi(c.Transaction_credit)
+func (c *Customer) isValidDepositCredit(formTransactionCustomer *entity.FormTransactionCustomer) error {
+	_, err := strconv.Atoi(formTransactionCustomer.TransactionCredit)
 	if err != nil {
-		return &entity.ResultMessage{Result: false, MessageType: entity.INVALID_VALUE}
+		return errors.New("INVALID_VALUE")
+		// return &entity.ResultMessage{Result: false, MessageType: entity.INVALID_VALUE}
 	}
-	_, err = strconv.Atoi(selectCustomerCreditBalance)
+	_, err = strconv.Atoi(c.Credit_balance)
 	if err != nil {
-		return &entity.ResultMessage{Result: false, MessageType: entity.INVALID_VALUE}
+		return errors.New("INVALID_VALUE")
 	}
-	return &entity.ResultMessage{Result: true, MessageType: entity.DEPOSIT_OK}
+	return err
 
 }
 
@@ -61,11 +60,11 @@ func caliculateDepositCredit(selectCredit, formTransactionCredit string) int {
 	return intSelectCredit + intFormCreditBalance
 }
 
-func setcreditHistory(CustomerID, TransactionCredit string) *entity.Credit_history {
+func setcreditHistory(CustomerID, TransactionCredit string) CreditHistoryInterface {
 
-	return &entity.Credit_history{
+	return &CreditHistory{
 		Customer_id:        CustomerID,
-		Credit_id:          generateCreditId(),
+		Credit_id:          GenerateCreditId(),
 		Transaction_credit: TransactionCredit,
 		Credit_flag:        "0",
 	}

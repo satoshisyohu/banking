@@ -1,11 +1,11 @@
 package entity
 
 type Customer struct {
-	Customer_id    string `json:"customer_id"`
-	Account_number string `json:"account_number"`
-	Branch_number  string `json:"branch_number" validate:"required"`
-	Name           string `json:"name" validate:"required"`
-	Credit_balance string `json:"credit_balance"`
+	Customer_id    *string `json:"customer_id"`
+	Account_number string  `json:"account_number"`
+	Branch_number  string  `json:"branch_number" validate:"required"`
+	Name           string  `json:"name" validate:"required"`
+	Credit_balance string  `json:"credit_balance"`
 }
 
 type Credit_history struct {

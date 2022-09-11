@@ -26,6 +26,8 @@ const (
 );`
 )
 
+var Db *sqlx.DB
+
 func Config(f *string) {
 
 	db, err := sqlx.Connect("mysql", "root:root@tcp(0.0.0.0:3333)/banking_db")
@@ -34,7 +36,7 @@ func Config(f *string) {
 	} else {
 		log.Print("db connected")
 	}
-
+	print(Db)
 	//go run main.go実行時に -db=initが指定されている場合dbを作成する
 	//指定されていない場合は作成しない
 	if *f == "init" {

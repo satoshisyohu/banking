@@ -5,17 +5,14 @@ import (
 	"log"
 )
 
-func IsCustomer(CustomerId string) *entity.Customer {
-	db, err := ConnectToDb()
-	customer := entity.Customer{}
-	log.Println(&CustomerId)
-	log.Println(CustomerId)
+func IsCustomer(CustomerId string) (*entity.Customer, *error) {
 
-	if err != nil {
-		log.Panic(err)
-	} else {
-		db.Get(&customer, `SELECT * from customer where customer_id =?`, &CustomerId)
-	}
+	customer := entity.Customer{}
+
+	err := DB.Get(&customer, `SELECT * from customer where customer_id =?`, &CustomerId)
 	log.Println(customer)
-	return &customer
+	if err != nil {
+		return &customer, &err
+	}
+	return &customer, &err
 }
