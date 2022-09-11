@@ -9,11 +9,7 @@ const customer_id_length = 16
 
 type setsCustomer entity.Customer
 
-type RegisterInterface interface {
-	Register()
-}
-
-func Register(formCustomer *entity.FormCustomer) error {
+func (f *FormCusotmoer) Register() error {
 	var err error
 
 	customerID, err := GenerateUuid(customer_id_length)
@@ -21,15 +17,15 @@ func Register(formCustomer *entity.FormCustomer) error {
 		//error.Newnに書き換えてreturnするように変更する
 		log.Fatal(err)
 	}
-	accountNumberUuid := GenerateAccountId(formCustomer.BranchNumer)
+	accountNumberUuid := GenerateAccountId(f.BranchNumer)
 	if err != nil {
 		//error.Newnに書き換えてreturnするように変更する
 
 		log.Fatal(err)
 	}
-	accountNumber := formCustomer.BranchNumer + accountNumberUuid[:6]
+	accountNumber := f.BranchNumer + accountNumberUuid[:6]
 
-	Customer := NewCustomer(customerID[:15], accountNumber, formCustomer.BranchNumer, formCustomer.Name)
+	Customer := NewCustomer(customerID[:15], accountNumber, f.BranchNumer, f.Name)
 
 	err = Customer.RegisterCustomer()
 	if err != nil {
@@ -47,4 +43,8 @@ func NewCustomer(customerID, accountNumber, branchNumber, name string) *Customer
 		Name:           name,
 		Credit_balance: "0",
 	}
+}
+
+type RegisterInterface interface {
+	Register() error
 }

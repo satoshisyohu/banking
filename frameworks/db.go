@@ -18,8 +18,8 @@ const (
 );`
 	credit_history_table = `
 	CREATE TABLE credit_history (
-    customer_id char(16) NOT NULL PRIMARY KEY,
-    credit_id char(8),
+    customer_id char(16) NOT NULL ,
+    credit_id char(8) NOT NULL PRIMARY KEY,
     transaction_credit char(20),
 	credit_flag char(1),
 	transaction_day date

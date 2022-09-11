@@ -1,7 +1,6 @@
 package usecases
 
 import (
-	"go_bank/entity"
 	"log"
 
 	"github.com/jmoiron/sqlx"
@@ -28,9 +27,9 @@ func (c Customer) CustomerUpdate(creditBalance string) error {
 
 //この辺はポインタ関数使えるからinterfacaceにできるはず
 
-func IsCustomerAndCredit(c *entity.FormTransactionCustomer) (*Customer, error) {
+func (f FormTransactionCreditCustomer) IsCustomerAndCredit() (*Customer, error) {
 	customer := Customer{}
-	err := DB.Get(&customer, `SELECT * from customer where customer_id =?`, c.CustomerId)
+	err := DB.Get(&customer, `SELECT * from customer where customer_id =?`, f.CustomerId)
 	log.Println(customer)
 
 	return &customer, err

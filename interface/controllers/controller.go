@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"go_bank/entity"
 	"go_bank/usecases"
 
@@ -11,44 +12,31 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-//顧客を作成する際に値を受け取るための構造体
-
-// type FormTransactionCustomer struct {
-// 	*entity.FormTransactionCustomer
-// }
-
-// type FormCustomer struct {
-// 	*entity.FormCustomer
-// }
-
-// type ValidationTransactionInterface interface {
-// 	TransactionValidation() *entity.Credit_history
-// }
-
-// type ValidationCustomerInterface interface {
-// 	Customer_validation() *entity.Customer
-// }
-
 type result entity.Result
+
+type interfaceStruct struct {
+	RegisterInterface usecases.RegisterInterface
+	DepositInterface  usecases.DepositInterface
+	WithdrawInterface usecases.WithdrawInterface
+	InquiryInterface  usecases.InquiryInterface
+}
 
 func Register(c *gin.Context) {
 
-	var formCustomer entity.FormCustomer
-	// var validation ValidationCustomerInterface
+	var formCustomer usecases.FormCusotmoer
 
 	if err := c.ShouldBindJSON(&formCustomer); err != nil {
-		log.Fatal(err)
+		log.Println(errors.New("JsonMappingに失敗しました。"))
 	} else {
 		validate := validator.New()
 		if err := validate.Struct(formCustomer); err != nil {
-			log.Fatal(err)
+			log.Println(errors.New("ValidationErrorが発生しました。"))
 		} else {
-			// validation = formFormCustomer
-			// err := usecases.Register(validation.Customer_validation())
-			err := usecases.Register(&formCustomer)
+			RegisterInterface := &formCustomer
+			err := RegisterInterface.Register()
 
 			if err != nil {
-				log.Fatal(err)
+				log.Println(errors.New("顧客登録に失敗しました。"))
 			} else {
 				c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "Success"})
 			}
@@ -58,89 +46,73 @@ func Register(c *gin.Context) {
 
 }
 
-// func (t FormCustomer) Customer_validation() *entity.Customer {
-// 	return &entity.Customer{
-// 		Name:          t.Name,
-// 		Branch_number: t.BranchNumer,
-// 	}
+func Deposit(c *gin.Context) {
+	var formTransactionCustomer usecases.FormTransactionCreditCustomer
 
-func Withdraw(c *gin.Context) {
-	var formTransactionCustomer entity.FormTransactionCustomer
-	// var validation ValidationTransactionInterface
-	// var sub = c.Request.Header.Get("sub")
-	// log.Println(sub)
 	if err := c.ShouldBindJSON(&formTransactionCustomer); err != nil {
-		log.Fatal(err)
-	}
-	validate := validator.New()
-	if err := validate.Struct(formTransactionCustomer); err != nil {
-		log.Fatal(err)
-	}
-
-	// validation = formTransactionCustomer
-	// var res = usecases.Withdraw(validation.TransactionValidation())
-	log.Println(&formTransactionCustomer)
-	res := usecases.Withdraw(&formTransactionCustomer)
-	if res.Result == true {
-		c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "出金が完了しました。"})
+		log.Println(errors.New("JsonMappingに失敗しました。"))
 	} else {
-		// c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(res)})
-	}
+		validate := validator.New()
+		if err := validate.Struct(formTransactionCustomer); err != nil {
+			log.Println(errors.New("ValidationErrorが発生しました。"))
+		}
 
-}
+		var DepositInterface interfaceStruct
+		DepositInterface.DepositInterface = &formTransactionCustomer
+		err := DepositInterface.DepositInterface.Deposit()
 
-// func (t FormTransactionCustomer) TransactionValidation() *entity.Credit_history {
-// 	return &entity.Credit_history{
-// 		Customer_id:        t.CustomerId,
-// 		Transaction_credit: t.TransactionCredit,
-// 	}
-// }
-
-func Inquiry(c *gin.Context) {
-	var formCustomer entity.FormInquieryCustomer
-
-	if err := c.ShouldBindJSON(&formCustomer); err != nil {
-		log.Fatal(err)
-	}
-	validate := validator.New()
-	if err := validate.Struct(formCustomer); err != nil {
-		log.Fatal(err)
-	} else {
-		creditBalance, err := usecases.Inquiry(formCustomer.CustomerId)
-		if *err != nil {
-			log.Println(*err)
+		if err != nil {
+			c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(err)})
 		} else {
-			c.JSON(http.StatusOK, entity.ReturnCredit{ResultCrecit: creditBalance})
+			c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "入金が完了しました。"})
 		}
 	}
-
 }
 
-func Deposit(c *gin.Context) {
-	var formTransactionCustomer entity.FormTransactionCustomer
-	// var validation ValidationTransactionInterface
-	// var sub = c.Request.Header.Get("sub")
-	// log.Println(sub)
+func Withdraw(c *gin.Context) {
+	var formTransactionCustomer usecases.FormTransactionCreditCustomer
+
 	if err := c.ShouldBindJSON(&formTransactionCustomer); err != nil {
-		log.Fatal(err)
-	}
-
-	validate := validator.New()
-	if err := validate.Struct(formTransactionCustomer); err != nil {
-		log.Fatal(err)
-	}
-
-	// validation = formTransactionCustomer
-	// err := usecases.Deposit(validation.TransactionValidation())
-	err := usecases.Deposit(&formTransactionCustomer)
-
-	log.Println(err)
-	if err != nil {
-		c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(err)})
+		log.Println(errors.New("JsonMappingに失敗しました。"))
 	} else {
-		c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "入金が完了しました。"})
-	}
+		validate := validator.New()
+		if err := validate.Struct(formTransactionCustomer); err != nil {
+			log.Println(errors.New("ValidationErrorが発生しました。"))
+		}
 
+		var WithdrawInterface interfaceStruct
+		WithdrawInterface.WithdrawInterface = &formTransactionCustomer
+		err := WithdrawInterface.WithdrawInterface.Withdraw()
+		if err != nil {
+			c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(err)})
+		} else {
+			c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "出金が完了しました。"})
+
+		}
+	}
+}
+
+func Inquiry(c *gin.Context) {
+	var formCustomer usecases.FormInquieryCustomer
+
+	if err := c.ShouldBindJSON(&formCustomer); err != nil {
+		log.Println(errors.New("JsonMappingに失敗しました。"))
+	} else {
+		validate := validator.New()
+		if err := validate.Struct(formCustomer); err != nil {
+			log.Println(errors.New("ValidationErrorが発生しました。"))
+		} else {
+			var InquiryInterface interfaceStruct
+			InquiryInterface.InquiryInterface = &formCustomer
+			creditBalance, err := InquiryInterface.InquiryInterface.Inquiry()
+
+			if *err != nil {
+				c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(*err)})
+			} else {
+				c.JSON(http.StatusOK, entity.ReturnCredit{ResultCrecit: creditBalance})
+			}
+		}
+	}
 }
 
 //これはどっか外に出した方が良い気がする

@@ -13,8 +13,12 @@ const account_number_length = 6 //頭にbranch_nameを足すために6桁にし�
 
 type Customer entity.Customer
 type CreditHistory entity.Credit_history
+type FormCusotmoer entity.FormCustomer
+type FormTransactionCreditCustomer entity.FormTransactionCustomer
+type FormInquieryCustomer entity.FormInquieryCustomer
 
 func GenerateCreditId() string {
+
 	var creditId = ""
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < CREDIT_ID_LENGTH; i++ {

@@ -1,7 +1,7 @@
 package usecases
 
 import (
-	"go_bank/entity"
+	"errors"
 	"log"
 	"strconv"
 )
@@ -9,48 +9,52 @@ import (
 const EMPTY_STRUCT = 8
 
 // 預金から残高を引き落とす
-func Withdraw(formTransactionCustomer *entity.FormTransactionCustomer) *entity.ResultMessage {
+func (f FormTransactionCreditCustomer) Withdraw() error {
 	var err error
-	log.Println(formTransactionCustomer.CustomerId)
+	log.Println(f.CustomerId)
 
-	selectCustomer, err := IsCustomerAndCredit(formTransactionCustomer)
+	selectCustomer, err := f.IsCustomerAndCredit()
 
 	if err != nil {
-		return &entity.ResultMessage{Result: false, MessageType: entity.NO_CUSTOMER_ID}
+		return errors.New("NO_CUSTOMER_ID")
 	} else {
-		var res = selectCustomer.isValidWithdrawCredit(formTransactionCustomer)
-		if res.Result == false {
-			return res
+		err = selectCustomer.isValidWithdrawCredit(f)
+		if err != nil {
+			return err
 		} else {
-			var updateCreditBalance = strconv.Itoa(caliculateWithdrawCredit(selectCustomer.Credit_balance, formTransactionCustomer.TransactionCredit))
+			var updateCreditBalance = strconv.Itoa(caliculateWithdrawCredit(selectCustomer.Credit_balance, f.TransactionCredit))
 
 			err = selectCustomer.CustomerUpdate(updateCreditBalance)
 			if err != nil {
-				return &entity.ResultMessage{Result: false, MessageType: entity.UPDATE_FAIL}
+				return errors.New("UPDATE_FAIL")
+
 			}
 
-			err := NewCreditHistory(formTransactionCustomer.CustomerId, formTransactionCustomer.TransactionCredit).RegisterTransacationHistory()
+			err := NewCreditHistory(f.CustomerId, f.TransactionCredit).RegisterTransacationHistory()
 			if *err != nil {
-				return &entity.ResultMessage{Result: false, MessageType: entity.UPDATE_FAIL}
+				return errors.New("UPDATE_FAIL")
 			}
 		}
-		return &entity.ResultMessage{Result: true, MessageType: entity.WITHDRAW_OK}
+		return err
 	}
 }
 
 //出勤時、入金に記録を残すためのクレジットID
 
 //残高を引き落とす際に入力された値が有効か判定する
-func (s Customer) isValidWithdrawCredit(formTransactionCustomer *entity.FormTransactionCustomer) *entity.ResultMessage {
+func (s Customer) isValidWithdrawCredit(formTransactionCustomer FormTransactionCreditCustomer) error {
+	var err error
 	transactionCredit, err := strconv.Atoi(formTransactionCustomer.TransactionCredit)
 	if err != nil {
-		return &entity.ResultMessage{Result: false, MessageType: entity.INVALID_VALUE}
+		return errors.New("INVALID_VALUE")
+
 	}
 	creditBalance, _ := strconv.Atoi(s.Credit_balance)
 	if creditBalance < transactionCredit {
-		return &entity.ResultMessage{Result: false, MessageType: entity.NO_CASH}
+		return errors.New("NO_CASH")
+
 	}
-	return &entity.ResultMessage{Result: true, MessageType: entity.WITHDRAW_OK}
+	return err
 }
 
 //預金から残高を引き落とす
@@ -68,4 +72,8 @@ func NewCreditHistory(CustomerID, TransactionCredit string) *CreditHistory {
 		Transaction_credit: TransactionCredit,
 		Credit_flag:        "1",
 	}
+}
+
+type WithdrawInterface interface {
+	Withdraw() error
 }
