@@ -16,3 +16,12 @@ type FormTransactionCustomer struct {
 }
 
 // TransactionValidation implements controllers.ValidationTransactionInterface
+
+//支店番号
+//講座番号
+//金額
+type FormTransferCustomer struct {
+	BranchNumer    string `json:"branchNumber" validate:"required"`
+	AccountNumber  string `json:"accountNumber" validate:"required"`
+	TransferCredit int    `json:"transferCredit" validate:"required"`
+}

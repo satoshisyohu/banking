@@ -19,6 +19,7 @@ type interfaceStruct struct {
 	DepositInterface  usecases.DepositInterface
 	WithdrawInterface usecases.WithdrawInterface
 	InquiryInterface  usecases.InquiryInterface
+	TransferInterface usecases.TransferInterface
 }
 
 func Register(c *gin.Context) {
@@ -106,12 +107,41 @@ func Inquiry(c *gin.Context) {
 			InquiryInterface.InquiryInterface = &formCustomer
 			creditBalance, err := InquiryInterface.InquiryInterface.Inquiry()
 
-			if *err != nil {
-				c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(*err)})
+			if err != nil {
+				c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(err)})
 			} else {
 				c.JSON(http.StatusOK, entity.ReturnCredit{ResultCrecit: creditBalance})
 			}
 		}
+	}
+}
+
+func Transfer(c *gin.Context) {
+	var err error
+	customerId := c.GetHeader("customer-id")
+	var formTransferCustomer usecases.FormTransferCustomer
+	log.Println(formTransferCustomer)
+	if err = c.ShouldBindJSON(&formTransferCustomer); err != nil {
+		log.Println(errors.New("JsonMappingに失敗しました。"))
+	} else {
+		var TransferInterface interfaceStruct
+		TransferInterface.TransferInterface = &formTransferCustomer
+		err = formTransferCustomer.Transfer(customerId)
+		if err != nil {
+			c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(err)})
+
+		} else {
+			c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: "振り込みが完了しました。"})
+		}
+
+		//headrerのチェック
+
+		//jsonobjectのマッピングチェック
+
+		//interactorに処理を渡す
+
+		//jsonでreturnを返す
+
 	}
 }
 

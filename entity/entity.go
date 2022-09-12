@@ -12,7 +12,7 @@ type Credit_history struct {
 	Customer_id        string `json:"customer_id" validate:"required"`
 	Credit_id          string `json:"credit_id"`
 	Transaction_credit string `json:"transaction_credit" validate:"required"`
-	Credit_flag        string `json:"credit_flag"`
+	Credit_flag        string `json:"credit_flag"` //入金:0 出金1
 	Transaction_day    int    `json:"transaction_day"`
 }
 

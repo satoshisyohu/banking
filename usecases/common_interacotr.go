@@ -16,6 +16,7 @@ type CreditHistory entity.Credit_history
 type FormCusotmoer entity.FormCustomer
 type FormTransactionCreditCustomer entity.FormTransactionCustomer
 type FormInquieryCustomer entity.FormInquieryCustomer
+type FormTransferCustomer entity.FormTransferCustomer
 
 func GenerateCreditId() string {
 
@@ -42,4 +43,14 @@ func GenerateAccountId(account_number string) string {
 		account_number = account_number + strconv.Itoa(rand.Intn(10))
 	}
 	return account_number
+}
+
+func (f FormTransactionCreditCustomer) NewCreditHistory() CreditHistoryInterface {
+
+	return &CreditHistory{
+		Customer_id:        f.CustomerId,
+		Credit_id:          GenerateCreditId(),
+		Transaction_credit: f.TransactionCredit,
+		Credit_flag:        "1",
+	}
 }

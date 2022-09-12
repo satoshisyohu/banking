@@ -16,9 +16,9 @@ func init() {
 	}
 }
 
-func (c Customer) CustomerUpdate(creditBalance string) error {
+func (c Customer) CustomerUpdate() error {
 	tx := DB.MustBegin()
-	tx.MustExec(`UPDATE customer SET credit_balance = ? where customer_id = ?`, creditBalance, c.Customer_id)
+	tx.MustExec(`UPDATE customer SET credit_balance = ? where customer_id = ?`, c.Credit_balance, c.Customer_id)
 	defer tx.Rollback()
 
 	return tx.Commit()
@@ -30,6 +30,22 @@ func (c Customer) CustomerUpdate(creditBalance string) error {
 func (f FormTransactionCreditCustomer) IsCustomerAndCredit() (*Customer, error) {
 	customer := Customer{}
 	err := DB.Get(&customer, `SELECT * from customer where customer_id =?`, f.CustomerId)
+	log.Println(customer)
+
+	return &customer, err
+}
+
+func IsCustomer(customerId string) (*Customer, error) {
+	customer := Customer{}
+	err := DB.Get(&customer, `SELECT * from customer where customer_id =?`, customerId)
+	log.Println(customer)
+
+	return &customer, err
+}
+
+func (t FormTransferCustomer) IsCustomerAndCredit() (*Customer, error) {
+	customer := Customer{}
+	err := DB.Get(&customer, `SELECT * from customer where branch_number = ? and account_number=?`, t.BranchNumer, t.AccountNumber)
 	log.Println(customer)
 
 	return &customer, err
@@ -54,4 +70,8 @@ func (c *CreditHistory) RegisterTransacationHistory() *error {
 
 type CreditHistoryInterface interface {
 	RegisterTransacationHistory() *error
+}
+
+type IsCustomerAndCredit interface {
+	IsCustomerAndCredit() (*Customer, error)
 }

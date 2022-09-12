@@ -22,15 +22,19 @@ func (f FormTransactionCreditCustomer) Withdraw() error {
 		if err != nil {
 			return err
 		} else {
-			var updateCreditBalance = strconv.Itoa(caliculateWithdrawCredit(selectCustomer.Credit_balance, f.TransactionCredit))
 
-			err = selectCustomer.CustomerUpdate(updateCreditBalance)
+			// var updateCreditBalance = strconv.Itoa(caliculateWithdrawCredit(f.TransactionCredit))
+			err = selectCustomer.caliculateWithdrawCredit(f.TransactionCredit)
+			if err != nil {
+				return err
+			}
+			err = selectCustomer.CustomerUpdate()
 			if err != nil {
 				return errors.New("UPDATE_FAIL")
 
 			}
-
-			err := NewCreditHistory(f.CustomerId, f.TransactionCredit).RegisterTransacationHistory()
+			creditHistoryInterface := f.NewCreditHistory()
+			err := creditHistoryInterface.RegisterTransacationHistory()
 			if *err != nil {
 				return errors.New("UPDATE_FAIL")
 			}
@@ -58,20 +62,15 @@ func (s Customer) isValidWithdrawCredit(formTransactionCustomer FormTransactionC
 }
 
 //預金から残高を引き落とす
-func caliculateWithdrawCredit(selectCredit, formTransactionCredit string) int {
-	intSelectCredit, _ := strconv.Atoi(selectCredit)
+func (c *Customer) caliculateWithdrawCredit(formTransactionCredit string) error {
+	var err error
+	intSelectCredit, _ := strconv.Atoi(c.Credit_balance)
 	intFormCreditBalance, _ := strconv.Atoi(formTransactionCredit)
-	return intSelectCredit - intFormCreditBalance
-}
-
-func NewCreditHistory(CustomerID, TransactionCredit string) *CreditHistory {
-
-	return &CreditHistory{
-		Customer_id:        CustomerID,
-		Credit_id:          GenerateCreditId(),
-		Transaction_credit: TransactionCredit,
-		Credit_flag:        "1",
+	c.Credit_balance = strconv.Itoa(intSelectCredit - intFormCreditBalance)
+	if err != nil {
+		return err
 	}
+	return err
 }
 
 type WithdrawInterface interface {

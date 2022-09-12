@@ -23,13 +23,15 @@ func (f FormTransactionCreditCustomer) Deposit() error {
 		if err != nil {
 			return err
 		} else {
-			var updateCreditBalance = strconv.Itoa(caliculateDepositCredit(selectCustomer.Credit_balance, f.TransactionCredit))
-
-			err = selectCustomer.CustomerUpdate(updateCreditBalance)
+			err = selectCustomer.caliculateWithdrawCredit(f.TransactionCredit)
+			if err != nil {
+				return err
+			}
+			err = selectCustomer.CustomerUpdate()
 			if err != nil {
 				return errors.New("UPDATE_FAIL")
 			}
-			creditHistoryInterface := newcreditHistory(f.CustomerId, f.TransactionCredit)
+			creditHistoryInterface := f.NewCreditHistory()
 			err := creditHistoryInterface.RegisterTransacationHistory()
 			if err != nil {
 				return *err
@@ -56,16 +58,6 @@ func caliculateDepositCredit(selectCredit, formTransactionCredit string) int {
 	intSelectCredit, _ := strconv.Atoi(selectCredit)
 	intFormCreditBalance, _ := strconv.Atoi(formTransactionCredit)
 	return intSelectCredit + intFormCreditBalance
-}
-
-func newcreditHistory(CustomerID, TransactionCredit string) CreditHistoryInterface {
-
-	return &CreditHistory{
-		Customer_id:        CustomerID,
-		Credit_id:          GenerateCreditId(),
-		Transaction_credit: TransactionCredit,
-		Credit_flag:        "0",
-	}
 }
 
 type DepositInterface interface {

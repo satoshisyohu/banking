@@ -9,7 +9,7 @@ func Router() *gin.Engine {
 	r.POST("/withdraw", Withdraw) //出金
 	r.POST("/deposit", Deposit)   //入金
 	r.POST("/inquiry", Inquiry)   //残高確認
-	// r.POST("/interst/", Interest)
+	r.POST("/transfer", Transfer)
 
 	return r
 }
