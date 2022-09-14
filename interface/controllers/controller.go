@@ -118,7 +118,7 @@ func Inquiry(c *gin.Context) {
 
 func Transfer(c *gin.Context) {
 	var err error
-	var formCustomerId entity.FormInquieryCustomer
+	var formCustomerId usecases.FormInquieryCustomer
 	formCustomerId.CustomerId = c.GetHeader("customer-id")
 	var formTransferCustomer usecases.FormTransferCustomer
 	log.Println(formTransferCustomer)

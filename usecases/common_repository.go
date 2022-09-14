@@ -71,7 +71,6 @@ func (c *CreditHistory) RegisterTransacationHistory() *error {
 type CreditHistoryInterface interface {
 	RegisterTransacationHistory() *error
 }
-
 type IsCustomerAndCredit interface {
 	IsCustomerAndCredit() (*Customer, error)
 }

@@ -5,13 +5,13 @@ type Customer struct {
 	Account_number string  `json:"account_number"`
 	Branch_number  string  `json:"branch_number" validate:"required"`
 	Name           string  `json:"name" validate:"required"`
-	Credit_balance string  `json:"credit_balance"`
+	Credit_balance int     `json:"credit_balance"`
 }
 
 type Credit_history struct {
 	Customer_id        string `json:"customer_id" validate:"required"`
 	Credit_id          string `json:"credit_id"`
-	Transaction_credit string `json:"transaction_credit" validate:"required"`
+	Transaction_credit int    `json:"transaction_credit" validate:"required"`
 	Credit_flag        string `json:"credit_flag"` //入金:0 出金1
 	Transaction_day    int    `json:"transaction_day"`
 }
@@ -36,5 +36,5 @@ type ReturnResult struct {
 }
 
 type ReturnCredit struct {
-	ResultCrecit string `json:"result_credit"`
+	ResultCrecit int `json:"result_credit"`
 }

@@ -2,8 +2,6 @@ package usecases
 
 import (
 	"errors"
-
-	"strconv"
 )
 
 // 預金から残高を引き落とす
@@ -19,45 +17,26 @@ func (f FormTransactionCreditCustomer) Deposit() error {
 	if err != nil {
 		return errors.New("NO_CUSTOMER_ID")
 	} else {
-		err = selectCustomer.isValidDepositCredit(f)
+
+		selectCustomer.caliculateDepositCredit(f.TransactionCredit)
+
+		err = selectCustomer.CustomerUpdate()
 		if err != nil {
-			return err
-		} else {
-			err = selectCustomer.caliculateWithdrawCredit(f.TransactionCredit)
-			if err != nil {
-				return err
-			}
-			err = selectCustomer.CustomerUpdate()
-			if err != nil {
-				return errors.New("UPDATE_FAIL")
-			}
-			creditHistoryInterface := f.NewCreditHistory()
-			err := creditHistoryInterface.RegisterTransacationHistory()
-			if err != nil {
-				return *err
-			}
+			return errors.New("UPDATE_FAIL")
 		}
-		return err
-	}
-}
-func (c *Customer) isValidDepositCredit(formTransactionCustomer FormTransactionCreditCustomer) error {
-	_, err := strconv.Atoi(formTransactionCustomer.TransactionCredit)
-	if err != nil {
-		return errors.New("INVALID_VALUE")
-	}
-	_, err = strconv.Atoi(c.Credit_balance)
-	if err != nil {
-		return errors.New("INVALID_VALUE")
+		creditHistoryInterface := f.NewCreditHistory()
+		err := creditHistoryInterface.RegisterTransacationHistory()
+		if err != nil {
+			return *err
+		}
 	}
 	return err
 
 }
 
 //預金から残高を引き落とす
-func caliculateDepositCredit(selectCredit, formTransactionCredit string) int {
-	intSelectCredit, _ := strconv.Atoi(selectCredit)
-	intFormCreditBalance, _ := strconv.Atoi(formTransactionCredit)
-	return intSelectCredit + intFormCreditBalance
+func (c *Customer) caliculateDepositCredit(formTransactionCredit int) {
+	c.Credit_balance = c.Credit_balance + formTransactionCredit
 }
 
 type DepositInterface interface {

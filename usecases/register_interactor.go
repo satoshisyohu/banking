@@ -41,7 +41,7 @@ func NewCustomer(customerID, accountNumber, branchNumber, name string) *Customer
 		Account_number: accountNumber,
 		Branch_number:  branchNumber,
 		Name:           name,
-		Credit_balance: "0",
+		Credit_balance: 0,
 	}
 }
 

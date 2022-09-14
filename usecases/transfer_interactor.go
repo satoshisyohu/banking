@@ -3,7 +3,6 @@ package usecases
 import (
 	"errors"
 	"log"
-	"strconv"
 )
 
 type TransferInterface interface {
@@ -47,33 +46,21 @@ func (t FormTransferCustomer) Transfer(formCustomerId FormInquieryCustomer) erro
 		return err
 	}
 	log.Println(fromCustomer.Credit_balance)
-	// fromCustomer.CustomerUpdate()
 
-	//出金先の相手の情報があるかチェック
-	//残高と顧客ID諸々を取得する
-	//入出金額の確認をする
-
-	//振り込む側からお金を引き落とす
-	//振り込まれた側に金額を追加する
 	return err
 }
 func (c *Customer) isValidTransferCredit(transferCredit int, flag string) error {
 	var err error
-	fromCreditBalance, err := strconv.Atoi(c.Credit_balance)
-	if err != nil {
-		return errors.New("INVALID_VALUE")
-	}
+
 	switch flag {
 	case "1":
-		if transferCredit >= fromCreditBalance {
+		if transferCredit >= c.Credit_balance {
 			return errors.New("NO_CASH")
 		} else {
-			resCreditBalance := fromCreditBalance - transferCredit
-			c.Credit_balance = strconv.Itoa(resCreditBalance)
+			c.Credit_balance = c.Credit_balance - transferCredit
 		}
 	case "0":
-		resCreditBalance := fromCreditBalance + transferCredit
-		c.Credit_balance = strconv.Itoa(resCreditBalance)
+		c.Credit_balance = c.Credit_balance + transferCredit
 	}
 
 	return err

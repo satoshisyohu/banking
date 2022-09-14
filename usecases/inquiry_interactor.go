@@ -1,16 +1,16 @@
 package usecases
 
-func (c FormInquieryCustomer) Inquiry() (string, error) {
+func (c FormInquieryCustomer) Inquiry() (int, error) {
 	var iscustomer IsChesckCustomer
 	iscustomer = c
 	customer, err := iscustomer.IsCustomer()
 
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 	return customer.Credit_balance, err
 }
 
 type InquiryInterface interface {
-	Inquiry() (string, error)
+	Inquiry() (int, error)
 }
