@@ -35,17 +35,17 @@ func (f FormTransactionCreditCustomer) IsCustomerAndCredit() (*Customer, error) 
 	return &customer, err
 }
 
-func IsCustomer(customerId string) (*Customer, error) {
+func (t FormTransferCustomer) IsCustomerAndCredit() (*Customer, error) {
 	customer := Customer{}
-	err := DB.Get(&customer, `SELECT * from customer where customer_id =?`, customerId)
+	err := DB.Get(&customer, `SELECT * from customer where branch_number = ? and account_number=?`, t.BranchNumer, t.AccountNumber)
 	log.Println(customer)
 
 	return &customer, err
 }
 
-func (t FormTransferCustomer) IsCustomerAndCredit() (*Customer, error) {
+func (t FormInquieryCustomer) IsCustomer() (*Customer, error) {
 	customer := Customer{}
-	err := DB.Get(&customer, `SELECT * from customer where branch_number = ? and account_number=?`, t.BranchNumer, t.AccountNumber)
+	err := DB.Get(&customer, `SELECT * from customer where customer_id =?`, t.CustomerId)
 	log.Println(customer)
 
 	return &customer, err
@@ -74,4 +74,7 @@ type CreditHistoryInterface interface {
 
 type IsCustomerAndCredit interface {
 	IsCustomerAndCredit() (*Customer, error)
+}
+type IsChesckCustomer interface {
+	IsCustomer() (*Customer, error)
 }

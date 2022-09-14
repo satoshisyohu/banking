@@ -36,6 +36,10 @@ func (f FormTransactionCreditCustomer) Withdraw() error {
 			creditHistoryInterface := f.NewCreditHistory()
 			err := creditHistoryInterface.RegisterTransacationHistory()
 			if *err != nil {
+				log.Println("test")
+
+				log.Println("test")
+
 				return errors.New("UPDATE_FAIL")
 			}
 		}

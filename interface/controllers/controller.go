@@ -118,7 +118,8 @@ func Inquiry(c *gin.Context) {
 
 func Transfer(c *gin.Context) {
 	var err error
-	customerId := c.GetHeader("customer-id")
+	var formCustomerId entity.FormInquieryCustomer
+	formCustomerId.CustomerId = c.GetHeader("customer-id")
 	var formTransferCustomer usecases.FormTransferCustomer
 	log.Println(formTransferCustomer)
 	if err = c.ShouldBindJSON(&formTransferCustomer); err != nil {
@@ -126,7 +127,7 @@ func Transfer(c *gin.Context) {
 	} else {
 		var TransferInterface interfaceStruct
 		TransferInterface.TransferInterface = &formTransferCustomer
-		err = formTransferCustomer.Transfer(customerId)
+		err = formTransferCustomer.Transfer(formCustomerId)
 		if err != nil {
 			c.JSON(http.StatusOK, entity.ReturnResult{ResultMessage: IndicateErrorMessage(err)})
 

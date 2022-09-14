@@ -7,13 +7,18 @@ import (
 )
 
 type TransferInterface interface {
-	Transfer(customerId string) error
+	Transfer(FormInquieryCustomer) error
 }
 
-func (t FormTransferCustomer) Transfer(customerId string) error {
+func (t FormTransferCustomer) Transfer(formCustomerId FormInquieryCustomer) error {
 	var err error
+	// var is IsChesckCustomer
+	var is IsChesckCustomer
+	is = formCustomerId
 
-	fromCustomer, err := IsCustomer(customerId)
+	// is = formCustomerId
+	fromCustomer, err := is.IsCustomer()
+
 	if err != nil {
 		return errors.New("NO_CUSTOMER_ID")
 	}

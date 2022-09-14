@@ -1,7 +1,9 @@
 package usecases
 
 func (c FormInquieryCustomer) Inquiry() (string, error) {
-	customer, err := IsCustomer(c.CustomerId)
+	var iscustomer IsChesckCustomer
+	iscustomer = c
+	customer, err := iscustomer.IsCustomer()
 
 	if err != nil {
 		return "", err
