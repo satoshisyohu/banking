@@ -25,3 +25,7 @@ type FormTransferCustomer struct {
 	AccountNumber  string `json:"accountNumber" validate:"required"`
 	TransferCredit int    `json:"transferCredit" validate:"required"`
 }
+
+type test struct {
+	branch string
+}
