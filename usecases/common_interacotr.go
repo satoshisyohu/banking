@@ -54,3 +54,7 @@ func (f FormTransactionCreditCustomer) NewCreditHistory() CreditHistoryInterface
 		Credit_flag:        "1",
 	}
 }
+
+type RegisterCreditHistoryEntity interface {
+	NewCreditHistory() CreditHistoryInterface
+}

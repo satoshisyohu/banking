@@ -24,9 +24,6 @@ func (t FormTransferCustomer) Transfer(formCustomerId FormInquieryCustomer) erro
 	var customerInterface IsCustomerAndCredit
 	customerInterface = t
 	toCustomer, err := customerInterface.IsCustomerAndCredit()
-	log.Println("関数内で更新した現在残高が反映されているか確認")
-
-	log.Println(toCustomer)
 
 	err = fromCustomer.isValidTransferCredit(t.TransferCredit, "1")
 	if err != nil {
