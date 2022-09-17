@@ -48,8 +48,3 @@ func NewCustomer(customerID, accountNumber, branchNumber, name string) *Customer
 type RegisterInterface interface {
 	Register() error
 }
-
-type tet struct {
-	test string
-	tes  int
-}
