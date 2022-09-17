@@ -13,9 +13,8 @@ func main() {
 	flag.Parse()
 	log.Println(f)
 	if *f == "init" {
-		log.Println("a")
+		frameworks.Config(f)
 	}
-	frameworks.Config(f)
 	r := controllers.Router()
 	r.Run(":3000")
 
@@ -27,4 +26,6 @@ func main() {
 3.TBLの要素を考える
 →顧客TBL
 
+db初期化するとき
+go run main.go -db init
 */

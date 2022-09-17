@@ -51,6 +51,7 @@ func Deposit(c *gin.Context) {
 	var formTransactionCustomer usecases.FormTransactionCreditCustomer
 
 	if err := c.ShouldBindJSON(&formTransactionCustomer); err != nil {
+		log.Println(formTransactionCustomer)
 		log.Println(errors.New("JsonMappingに失敗しました。"))
 	} else {
 		validate := validator.New()

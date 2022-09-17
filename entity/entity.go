@@ -1,7 +1,7 @@
 package entity
 
 type Customer struct {
-	Customer_id    *string `json:"customer_id"`
+	Customer_id    string `json:"customer_id"`
 	Account_number string  `json:"account_number"`
 	Branch_number  string  `json:"branch_number" validate:"required"`
 	Name           string  `json:"name" validate:"required"`

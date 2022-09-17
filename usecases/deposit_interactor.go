@@ -2,40 +2,34 @@ package usecases
 
 import (
 	"errors"
+	"log"
 )
 
 // 預金から残高を引き落とす
 func (f FormTransactionCreditCustomer) Deposit() error {
 	var err error
 
-	//container/listっていうライブラリを使うこともできるよ
-	// l := list.New()
-	// l.PushBack("z")
-	// log.Println(l.Front().Value)
-
 	selectCustomer, err := f.IsCustomerAndCredit()
+	log.Println(selectCustomer)
 	if err != nil {
 		return errors.New("NO_CUSTOMER_ID")
 	} else {
-
-		selectCustomer.caliculateDepositCredit(f.TransactionCredit)
+		selectCustomer.CaliculateDepositCredit(f.TransactionCredit)
 
 		err = selectCustomer.CustomerUpdate()
 		if err != nil {
 			return errors.New("UPDATE_FAIL")
 		}
-		creditHistoryInterface := f.NewCreditHistory()
-		err := creditHistoryInterface.RegisterTransacationHistory()
+		err := f.NewCreditHistory().RegisterTransacationHistory()
 		if err != nil {
-			return *err
+			return err
 		}
 	}
 	return err
-
 }
 
 //預金から残高を引き落とす
-func (c *Customer) caliculateDepositCredit(formTransactionCredit int) {
+func (c *Customer) CaliculateDepositCredit(formTransactionCredit int) {
 	c.Credit_balance = c.Credit_balance + formTransactionCredit
 }
 

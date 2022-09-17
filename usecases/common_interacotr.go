@@ -55,6 +55,22 @@ func (f FormTransactionCreditCustomer) NewCreditHistory() CreditHistoryInterface
 	}
 }
 
+func (f Customer) NewTransferCreditHistory(transferCredit int, creditFlag string) CreditHistoryInterface {
+
+	return &CreditHistory{
+		Customer_id:        f.Customer_id,
+		Credit_id:          GenerateCreditId(),
+		Transaction_credit: transferCredit,
+		Credit_flag:        creditFlag,
+	}
+}
+
 type RegisterCreditHistoryEntity interface {
 	NewCreditHistory() CreditHistoryInterface
 }
+
+type RegisterTransferCreditHistoryEntity interface {
+	NewTransferCreditHistory() CreditHistoryInterface
+}
+
+var test entity.FormTest

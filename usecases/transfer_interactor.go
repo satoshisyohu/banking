@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"errors"
-	"log"
 )
 
 type TransferInterface interface {
@@ -11,9 +10,7 @@ type TransferInterface interface {
 
 func (t FormTransferCustomer) Transfer(formCustomerId FormInquieryCustomer) error {
 	var err error
-	// var is IsChesckCustomer
-	var is IsChesckCustomer
-	is = formCustomerId
+	var is IsCheckCustomer = formCustomerId
 
 	// is = formCustomerId
 	fromCustomer, err := is.IsCustomer()
@@ -33,7 +30,10 @@ func (t FormTransferCustomer) Transfer(formCustomerId FormInquieryCustomer) erro
 	if err != nil {
 		return err
 	}
-
+	err = fromCustomer.NewTransferCreditHistory(t.TransferCredit, "1").RegisterTransacationHistory()
+	if err != nil {
+		return err
+	}
 	err = toCustomer.isValidTransferCredit(t.TransferCredit, "0")
 	if err != nil {
 		return err
@@ -42,7 +42,11 @@ func (t FormTransferCustomer) Transfer(formCustomerId FormInquieryCustomer) erro
 	if err != nil {
 		return err
 	}
-	log.Println(fromCustomer.Credit_balance)
+
+	err = toCustomer.NewTransferCreditHistory(t.TransferCredit, "0").RegisterTransacationHistory()
+	if err != nil {
+		return err
+	}
 
 	return err
 }

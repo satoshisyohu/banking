@@ -37,7 +37,7 @@ func (f *FormCusotmoer) Register() error {
 func NewCustomer(customerID, accountNumber, branchNumber, name string) *Customer {
 
 	return &Customer{
-		Customer_id:    &customerID,
+		Customer_id:    customerID,
 		Account_number: accountNumber,
 		Branch_number:  branchNumber,
 		Name:           name,

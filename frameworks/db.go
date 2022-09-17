@@ -1,10 +1,13 @@
 package frameworks
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -22,21 +25,24 @@ const (
     credit_id char(8) NOT NULL PRIMARY KEY,
     transaction_credit char(20),
 	credit_flag char(1),
-	transaction_day date
+	transaction_day timestamp
 );`
 )
 
-var Db *sqlx.DB
-
 func Config(f *string) {
 
-	db, err := sqlx.Connect("mysql", "root:root@tcp(0.0.0.0:3333)/banking_db")
+	if err := godotenv.Load("/Users/Satoshi/Desktop/go_bank/.env"); err != nil {
+		log.Println(err)
+	}
+
+	connect := fmt.Sprintf("%s:%s@%s(%s:%s)/%s", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_PROTOCOL"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB"))
+
+	db, err := sqlx.Connect(os.Getenv("DBMS"), connect)
 	if err != nil {
 		log.Print(err)
 	} else {
 		log.Print("db connected")
 	}
-	print(Db)
 	//go run main.go実行時に -db=initが指定されている場合dbを作成する
 	//指定されていない場合は作成しない
 	if *f == "init" {
