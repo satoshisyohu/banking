@@ -147,6 +147,15 @@ func Transfer(c *gin.Context) {
 	}
 }
 
+func Gmap(c *gin.Context) {
+	var err error
+	// res, err := usecases.Gmap()
+	if err != nil {
+		c.HTML(200, "", "https://www.google.com/maps/search/?api=1&query=スターバックス")
+
+	}
+}
+
 //これはどっか外に出した方が良い気がする
 func IndicateErrorMessage(res error) string {
 	print(res)
